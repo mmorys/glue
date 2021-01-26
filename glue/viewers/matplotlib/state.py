@@ -132,6 +132,9 @@ class MatplotlibDataViewerState(ViewerState):
     x_ticklabel_size = DeferredDrawCallbackProperty(8, docstring='Size of the x-axis tick labels')
     y_ticklabel_size = DeferredDrawCallbackProperty(8, docstring='Size of the y-axis tick labels')
 
+    x_lock = DeferredDrawCallbackProperty(False, docstring='Whether the x axis is locked to others with same label')
+    y_lock = DeferredDrawCallbackProperty(False, docstring='Whether the y axis is locked to others with same label')
+
     def __init__(self, *args, **kwargs):
 
         self._axes_aspect_ratio = None

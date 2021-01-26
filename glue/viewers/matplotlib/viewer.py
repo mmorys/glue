@@ -129,6 +129,9 @@ class MatplotlibViewerMixin(object):
         self.state.legend.add_callback('show_edge', self.update_legend)
         self.state.legend.add_callback('text_color', self.update_legend)
 
+        self.state.add_callback('x_lock', self.update_x_axis_links)
+        self.state.add_callback('y_lock', self.update_y_axis_links)
+
         self.update_x_axislabel()
         self.update_y_axislabel()
         self.update_x_ticklabel()
@@ -142,13 +145,53 @@ class MatplotlibViewerMixin(object):
         self.axes.set_xlabel(self.state.x_axislabel,
                              weight=self.state.x_axislabel_weight,
                              size=self.state.x_axislabel_size)
+        if self.options.bool_x_lock.isChecked():
+            self.link_x_axis()
         self.redraw()
 
     def update_y_axislabel(self, *event):
         self.axes.set_ylabel(self.state.y_axislabel,
                              weight=self.state.y_axislabel_weight,
                              size=self.state.y_axislabel_size)
+        if self.options.bool_y_lock.isChecked():
+            self.link_y_axis()
         self.redraw()
+
+    def link_axis(self, axis):
+        current_tab_index = self.session.application.get_tab_index(self.session.application.current_tab)
+        current_tab_viewers = self.session.application.viewers[current_tab_index]
+        label_param_name = f'{axis}_axislabel'
+        lock_check_name = f'bool_{axis}_lock'
+        for viewer in current_tab_viewers:
+            if viewer is not self and \
+                    getattr(viewer.options, lock_check_name).isChecked() and \
+                    getattr(self.state, label_param_name) == getattr(viewer.state, label_param_name):
+                        getattr(self.axes, f'get_shared_{axis}_axes')().join(self.axes, viewer.axes)
+                        break
+
+    def link_x_axis(self):
+        return self.link_axis('x')
+
+    def link_y_axis(self):
+        return self.link_axis('y')
+
+    def unlink_x_axis(self):
+        self.axes.get_shared_x_axes().remove(self.axes)
+
+    def unlink_y_axis(self):
+        self.axes.get_shared_y_axes().remove(self.axes)
+
+    def update_x_axis_links(self, *event):
+        if self.options.bool_x_lock.isChecked():
+            self.link_x_axis()
+        else:
+            self.unlink_x_axis()
+
+    def update_y_axis_links(self, *event):
+        if self.options.bool_y_lock.isChecked():
+            self.link_y_axis()
+        else:
+            self.unlink_y_axis()
 
     def update_x_ticklabel(self, *event):
         self.axes.tick_params(axis='x', labelsize=self.state.x_ticklabel_size)
