@@ -1,4 +1,5 @@
 import logging
+import functools
 
 import numpy as np
 import pandas as pd
@@ -184,7 +185,9 @@ class DerivedComponent(Component):
         """ Reassign the Data object that this DerivedComponent operates on """
         self._data = data
 
+
     @property
+    @functools.lru_cache(maxsize=1)
     def data(self):
         """ Return the numerical data as a numpy array """
         return self._link.compute(self._data)
