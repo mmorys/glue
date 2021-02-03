@@ -1901,7 +1901,7 @@ class Data(BaseCartesianData):
             if isinstance(x, da.Array):
                 x = x.compute()
             if ndim > 1 and isinstance(y, da.Array):
-                x = x.compute()
+                y = y.compute()
             if isinstance(w, da.Array):
                 w = w.compute()
 
